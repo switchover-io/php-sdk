@@ -1,5 +1,8 @@
 # Switchover SDK for PHP
 
+![CI](https://github.com/switchover-io/php-sdk/workflows/CI/badge.svg)
+[![codecov](https://codecov.io/gh/switchover-io/php-sdk/branch/main/graph/badge.svg?token=eoSgEfaI5J)](https://codecov.io/gh/switchover-io/php-sdk)
+[![CodeFactor](https://www.codefactor.io/repository/github/switchover-io/php-sdk/badge)](https://www.codefactor.io/repository/github/switchover-io/php-sdk)
 ## Switchover
 
 Switchover is a Software-As-A-Service for managing feature toggles (aka switches, flags or feature flips) in your application. Use it for Continous Integration, Continous Delivery, A/B-Testing, Canary Releases, Experementing and everything else you can think of.
