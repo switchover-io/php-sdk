@@ -54,7 +54,22 @@ if ($isFeatureVisible) {
 
 It's possible to pass numerous options to the client:
 
-TBD
+|Option|Value|
+|:-----|:----|
+| `cache.time` | Sets time in seconds before the internal cache becomes stale and will be refreshed (TTL). Default is 60 seconds. The value 0 will keep the cache forever. |
+| `logger` | Possibility to provide you own logger instance (PSR-7). |
+| `cache` | Option to set your cache instance (e.g. for redis). Expects a PSR-16 compliant instance. |
+| `http` | The client uses `guzzlehttp/guzzle` for http requests. You can pass an array of options for the Guzzle Http Client |
+
+Example
+
+```bash
+$client = new SwitchoverClient('<SDK-KEY', ['cache.time' => 10,
+                                            'http' => [
+                                                'timeout' => '10',
+                                                'proxy' => 'yourproxy'
+                                            ]);
+```
 
 
 
