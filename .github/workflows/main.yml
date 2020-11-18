@@ -24,7 +24,7 @@ jobs:
       - name: Setup PHP with PCOV
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.2'
+          php-version: '7.3'
           coverage: pcov
           tools: composer:v2, phpunit
 
