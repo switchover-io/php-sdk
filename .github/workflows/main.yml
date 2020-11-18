@@ -37,5 +37,5 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/clover.xml
+          files: ./build/logs/clover.xml
 
