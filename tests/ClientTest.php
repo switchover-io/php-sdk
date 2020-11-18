@@ -196,3 +196,4 @@ class ClientTest extends TestCase
         $this->assertCount(3, $keys);
     }
 }
+
