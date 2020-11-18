@@ -1,12 +1,15 @@
 {
     "name": "switchover/php-sdk",
     "description": "Switchover PHP SDK. Feature Toggle Management made easy!",
+    "version": "0.5.0",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
             "name": "Michael Hofmann",
-            "email": "michael.hofmann@takso.de"
+            "email": "michael.hofmann@takso.de",
+            "homepage": "https://switch-over.io",
+            "role": "Developer"
         }
     ],
     "require": {
