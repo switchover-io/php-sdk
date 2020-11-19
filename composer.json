@@ -1,7 +1,7 @@
 {
     "name": "switchover/php-sdk",
     "description": "Switchover PHP SDK. Feature Toggle Management made easy!",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "type": "library",
     "license": "MIT",
     "authors": [
