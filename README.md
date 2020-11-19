@@ -23,7 +23,8 @@ composer require switchover/php-sdk
 
 ### For Laravel Users
 
-TBD
+Use our Laravel Package to get up and running quickly with Switchover in your Laravel App:
+https://github.com/switchover-io/laravel-integration
 
 
 ### Initialize client

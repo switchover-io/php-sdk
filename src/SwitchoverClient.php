@@ -138,6 +138,11 @@ class SwitchoverClient
     }
 
 
+    /**
+     * Returns a list of keys from loaded toggles
+     *
+     * @return array
+     */
     public function getToggleKeys() {
         $toggles = $this->doGetToggles();
         if (is_null($toggles)) {
