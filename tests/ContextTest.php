@@ -25,4 +25,14 @@ class ContextTest extends TestCase
 
         $this->assertNull($userId);
     }
+
+    public function testSetValuesViaCtorArray() {
+        $ctx = new Context( [
+            'userId' => 'aUserId001',
+            'email' => 'user@mail.com'
+        ] );
+
+        $this->assertEquals('aUserId001', $ctx->get('userId'));
+        $this->assertEquals('user@mail.com', $ctx->get('email'));
+    }
 }
