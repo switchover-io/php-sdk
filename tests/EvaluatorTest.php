@@ -59,7 +59,8 @@ class EvaluatorTest extends TestCase
             "name" => "toggle-001",
             "status" => StatusOption::ACTIVE,
             "value" => true,
-            "strategy" => StrategyOption::STRATEGY_MAJORITY
+            "strategy" => StrategyOption::STRATEGY_MAJORITY,
+            "conditions" => []
         ]);
         $logger = new Logger('test');
 

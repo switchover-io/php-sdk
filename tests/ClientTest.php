@@ -195,5 +195,22 @@ class ClientTest extends TestCase
 
         $this->assertCount(3, $keys);
     }
+
+
+
+    /*
+    function testReal() {
+
+        $client = new SwitchoverClient('fb6c850f-7934-4645-a295-ab507857b01f');
+
+        $ctx = new Context();
+        $ctx->set('email', 'brandon.taylor@acme.org');
+        $value = $client->toggleValue('beta-feature', false, $ctx);
+
+        
+        $this->assertTrue($value);
+    }*/
+
+
 }
 

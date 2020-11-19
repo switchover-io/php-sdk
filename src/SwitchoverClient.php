@@ -43,6 +43,10 @@ class SwitchoverClient
 
         $this->assertSdkKey($sdkKey);
 
+        if (is_null($options)) {
+            $options = [];
+        }
+
         $httpOptions = [];
         if (array_key_exists('http', $options)) {
             $httpOptions = $options['http'];

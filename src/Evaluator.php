@@ -78,7 +78,9 @@ class Evaluator {
     }
 
     private function hasConditions(array $toggle) {
-        return array_key_exists(ToggleProperties::CONDITIONS, $toggle);
+        //condtions exits and is not empty
+        return array_key_exists(ToggleProperties::CONDITIONS, $toggle) && 
+                        !empty($toggle[ToggleProperties::CONDITIONS]);
     }
 
     private function evaluateWithConditions(array $toggle, Context $context = null, $defaultValue) {
