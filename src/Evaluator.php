@@ -96,57 +96,72 @@ class Evaluator {
 
         switch($strategy) {
             case StrategyOption::STRATEGY_ALL: 
-                return $this->evaluateAll($toggle, $context) ? $toggle[ToggleProperties::VALUE] : $defaultValue;
+                return $this->evaluateAll($toggle, $context, $defaultValue); // ? $toggle[ToggleProperties::VALUE] : $defaultValue;
             case StrategyOption::STRATEGY_ATLEASTONE: 
-                return $this->evaluateAtLeastOne($toggle, $context) ? $toggle[ToggleProperties::VALUE] : $defaultValue;
+                return $this->evaluateAtLeastOne($toggle, $context, $defaultValue); // ? $toggle[ToggleProperties::VALUE] : $defaultValue;
             case StrategyOption::STRATEGY_MAJORITY: 
-                return $this->evaluateMajority($toggle, $context) ? $toggle[ToggleProperties::VALUE] : $defaultValue;
+                return $this->evaluateMajority($toggle, $context, $defaultValue); // ? $toggle[ToggleProperties::VALUE] : $defaultValue;
         }
         throw new EvaluationException('No toggle.strategy given!');
     }
 
-    private function evaluateAll(array $toggle, Context $context) {
+    private function evaluateAll(array $toggle, Context $context, $defaultValue) {
         $this->logger->debug('All toggle conditions have to be satisfied');
 
+        $rolloutValue = null;
         foreach($toggle[ToggleProperties::CONDITIONS] as $condition) {
-            if (!$this->conditionAssertion->satisfies($condition, $context)) {
+            $assertResult = $this->conditionAssertion->satisfies($condition, $context, $toggle[ToggleProperties::NAME]);
+            if (!is_null($assertResult->rolloutValue)){
+                $rolloutValue = $assertResult->rolloutValue;
+            }
+            if (!$assertResult->isValid) {
                 $this->logger->debug('Condition ' . $condition[ConditionProperties::KEY] . ' was not satisfied');       
                 $this->logger->debug(json_encode($condition));
-                return false;
+                return $defaultValue;
             }
         }
         $this->logger->debug('All conditions satisfied');
-        return true;
+
+        return is_null($rolloutValue) ? $toggle[ToggleProperties::VALUE] : $rolloutValue;
     }
 
-    private function evaluateAtLeastOne(array $toggle, Context $context) {
+    private function evaluateAtLeastOne(array $toggle, Context $context, $defaultValue) {
         $this->logger->debug('At least one condition has to be satisfied');
 
         foreach($toggle[ToggleProperties::CONDITIONS] as $condition) {
-            if ($this->conditionAssertion->satisfies($condition, $context)) {
-                $this->logger->debug('Condition ' . $condition[ConditionProperties::KEY] . ' was not satisfied');       
-                return true;
+            $assertResult = $this->conditionAssertion->satisfies($condition, $context, $toggle[ToggleProperties::NAME]);
+            if ($assertResult->isValid) {
+                $this->logger->debug('Condition ' . $condition[ConditionProperties::KEY] . ' was satisfied');     
+                return is_null($assertResult->rolloutValue) ? $toggle[ToggleProperties::VALUE] : $assertResult->rolloutValue;  
             }
         }
 
-        $this->logger->debug('No condition satisfied');
-        return false;
+        $this->logger->debug('No condition satisfied, returning default value');
+        return $defaultValue;
     }
 
-    private function evaluateMajority(array $toggle, Context $context) {
+    private function evaluateMajority(array $toggle, Context $context, $defaultValue) {
         $this->logger->debug('Majority of conditions has to be satisfied');
 
         $hit = 0;
         $miss = 0;
+
+        $rolloutValue = null;
         foreach($toggle[ToggleProperties::CONDITIONS] as $condition) {
-            if ($this->conditionAssertion->satisfies($condition, $context)) {
+            $assertResult = $this->conditionAssertion->satisfies($condition, $context, $toggle[ToggleProperties::NAME]);
+            if ($assertResult->isValid) {
+                if (!is_null($assertResult->rolloutValue)) {
+                    $rolloutValue = $assertResult->rolloutValue;
+                }
                 $this->logger->debug('Condition ' . $condition[ConditionProperties::KEY] . ' was satisfied by given context');    
                 $hit++;
             } else {
                 $miss++;
             }
         }
-
-        return $hit > $miss;
+        if ($hit > $miss) {
+            return is_null($rolloutValue) ? $toggle[ToggleProperties::VALUE] : $rolloutValue;
+        }
+        return $defaultValue;
     }
 }

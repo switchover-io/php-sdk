@@ -11,5 +11,7 @@ abstract class ConditionProperties {
     const OPERATOR = 'operator';
     const OPERATOR_NAME = 'name';
     const OPERATOR_VALUE = 'value';
-
+    const ALLOCATIONS = 'allocations';
+    const ROLLOUT_CONDITION = 'rollout-condition';
+    const NAME = 'name';
 }

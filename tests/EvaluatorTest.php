@@ -6,10 +6,12 @@ namespace Switchover;
 
 use Exception;
 use InvalidArgumentException;
+use Monolog\Handler\ErrorLogHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Switchover\Exceptions\EvaluationException;
+use Switchover\Operator\AssertionResult;
 use Switchover\Operator\ConditionAssertion;
 use Switchover\Operator\OperatorBag;
 use Switchover\Util\StatusOption;
@@ -124,9 +126,9 @@ class EvaluatorTest extends TestCase
         /** @var ConditionAssertion */
         $mock = new class implements ConditionAssertion
         {
-            function satisfies(array $condition, Context $context)
+            function satisfies(array $condition, Context $context, string $toggleName)
             {
-                return true;
+                return new AssertionResult(true);
             }
         };
 
@@ -170,9 +172,9 @@ class EvaluatorTest extends TestCase
         /** @var ConditionAssertion */
         $mock = new class implements ConditionAssertion
         {
-            function satisfies(array $condition, Context $context)
+            function satisfies(array $condition, Context $context, string $toggleName)
             {
-                return false;
+                return new AssertionResult(false);
             }
         };
 
@@ -215,7 +217,7 @@ class EvaluatorTest extends TestCase
         $logger = new Logger('test');
 
         /** @var ConditionAssertion */
-        $bag = new OperatorBag();
+        $bag = new OperatorBag($logger);
 
         $evaluator = new Evaluator($logger, $bag);
         $val = $evaluator->evaluate($config, 'toggle-001', $context, false);
@@ -264,10 +266,51 @@ class EvaluatorTest extends TestCase
         $logger = new Logger('test');
 
         /** @var ConditionAssertion */
-        $bag = new OperatorBag();
+        $bag = new OperatorBag($logger);
 
         $evaluator = new Evaluator($logger, $bag);
         $val = $evaluator->evaluate($config, 'toggle-001', $context, false);
         $this->assertTrue($val);
+    }
+
+
+    public function testRolloutConditionsMultivaration() {
+        $config = array([
+            "name" => "toggle-001",
+            "status" => StatusOption::ACTIVE,
+            "value" => 1,
+            "strategy" => StrategyOption::STRATEGY_ALL,
+            "conditions" => array(
+                [
+                    "key" => "key01",
+                    "name" => "rollout-condition",
+                    "allocations" => [
+                        [
+                            "name" => 'BucketA',
+                            "value" => 10,
+                            "ratio" => 0.5
+                        ],
+                        [
+                            "name" => 'BucketB',
+                            "value" => 20,
+                            "ratio" => 0.5
+                        ],
+                    ]
+                ],
+            )
+        ]);
+
+        $context = new Context();
+        $context->set('uuid', '1');
+
+        $logger = new Logger('test',[new ErrorLogHandler()]);
+
+        /** @var ConditionAssertion */
+        $bag = new OperatorBag($logger);
+
+        $evaluator = new Evaluator($logger, $bag);
+        $val = $evaluator->evaluate($config, 'toggle-001', $context, -1);
+        $this->assertEquals(10, $val);
+
     }
 }

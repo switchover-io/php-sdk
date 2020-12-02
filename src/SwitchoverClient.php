@@ -35,7 +35,7 @@ class SwitchoverClient
     /** @var string */
     private $cacheKey;
 
-    /** @var string */
+    /** @var int */
     private $cacheTime;
 
     function __construct(string $sdkKey, array $options = null)
@@ -123,6 +123,7 @@ class SwitchoverClient
             $cachedResponse = $this->cache->get($this->cacheKey);
 
             if (is_null($cachedResponse)) {
+                $this->logger->debug('No cached item, fetching from remote');
                 //fetch new toggles
                 $apiResponse = $this->fetcher->fetchAll($this->sdkKey);
 
@@ -169,7 +170,7 @@ class SwitchoverClient
 
     private function createEvaluator(LoggerInterface $logger)
     {
-        return new Evaluator($logger, new OperatorBag());
+        return new Evaluator($logger, new OperatorBag($logger));
     }
 
     private function createFetcher(LoggerInterface $logger, array $httpOptions)

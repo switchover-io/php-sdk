@@ -2,7 +2,10 @@
 
 namespace Switchover;
 
+use Monolog\Handler\ErrorLogHandler;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
+use Switchover\Exceptions\EvaluationException;
 use Switchover\Operator\OperatorBag;
 
 class OperatorTest extends TestCase
@@ -18,9 +21,9 @@ class OperatorTest extends TestCase
             ]
         ];
 
-        $bag = new OperatorBag();
+        $bag = new OperatorBag(new Logger('test'));
 
-        $val = $bag->satisfies($condition, new Context());
+        $val = $bag->satisfies($condition, new Context(), '')->isValid;
         $this->assertFalse($val);
     }
 
@@ -34,12 +37,12 @@ class OperatorTest extends TestCase
             ]
         ];
 
-        $bag = new OperatorBag();
+        $bag = new OperatorBag(new Logger('test'));
 
         $context = new Context();
         $context->set('key01', 'aStringValue001');
 
-        $val = $bag->satisfies($condition, $context);
+        $val = $bag->satisfies($condition, $context, '')->isValid;
         $this->assertTrue($val);
     }
 
@@ -53,12 +56,12 @@ class OperatorTest extends TestCase
             ]
         ];
 
-        $bag = new OperatorBag();
+        $bag = new OperatorBag(new Logger('test'));
 
         $context1 = new Context();
         $context1->set('key01', '3');
 
-        $this->assertTrue($bag->satisfies($condition, $context1));
+        $this->assertTrue($bag->satisfies($condition, $context1,'')->isValid);
     }
 
     public function testGreaterThanEqual()
@@ -71,17 +74,17 @@ class OperatorTest extends TestCase
             ]
         ];
 
-        $bag = new OperatorBag();
+        $bag = new OperatorBag(new Logger('test'));
 
         $context1 = new Context();
         $context1->set('key01', 2);
 
-        $this->assertTrue($bag->satisfies($condition, $context1));
+        $this->assertTrue($bag->satisfies($condition, $context1, '')->isValid);
 
         $context2 = new Context();
         $context2->set('key01', 3);
 
-        $this->assertTrue($bag->satisfies($condition, $context2));
+        $this->assertTrue($bag->satisfies($condition, $context2, '')->isValid);
     }
 
     public function testInSet()
@@ -94,17 +97,17 @@ class OperatorTest extends TestCase
             ]
         ];
 
-        $bag = new OperatorBag();
+        $bag = new OperatorBag(new Logger('test'));
 
         $context1 = new Context();
         $context1->set('key01', "red");
 
-        $this->assertTrue($bag->satisfies($condition, $context1));
+        $this->assertTrue($bag->satisfies($condition, $context1, '')->isValid);
 
         $context2 = new Context();
         $context2->set('key01', "orange");
 
-        $this->assertFalse($bag->satisfies($condition, $context2));
+        $this->assertFalse($bag->satisfies($condition, $context2, '')->isValid);
     }
 
     public function testNotInSet()
@@ -117,17 +120,17 @@ class OperatorTest extends TestCase
             ]
         ];
 
-        $bag = new OperatorBag();
+        $bag = new OperatorBag(new Logger('test'));
 
         $context1 = new Context();
         $context1->set('key01', "red");
 
-        $this->assertFalse($bag->satisfies($condition, $context1));
+        $this->assertFalse($bag->satisfies($condition, $context1, '')->isValid);
 
         $context2 = new Context();
         $context2->set('key01', "orange");
 
-        $this->assertTrue($bag->satisfies($condition, $context2));
+        $this->assertTrue($bag->satisfies($condition, $context2, '')->isValid);
     }
 
 
@@ -141,17 +144,17 @@ class OperatorTest extends TestCase
             ]
         ];
 
-        $bag = new OperatorBag();
+        $bag = new OperatorBag(new Logger('test'));
 
         $context1 = new Context();
         $context1->set('key01', 1);
 
-        $this->assertTrue($bag->satisfies($condition, $context1));
+        $this->assertTrue($bag->satisfies($condition, $context1, '')->isValid);
 
         $context2 = new Context();
         $context2->set('key01', 3);
 
-        $this->assertFalse($bag->satisfies($condition, $context2));
+        $this->assertFalse($bag->satisfies($condition, $context2, '')->isValid);
     }
 
 
@@ -166,17 +169,17 @@ class OperatorTest extends TestCase
             ]
         ];
 
-        $bag = new OperatorBag();
+        $bag = new OperatorBag(new Logger('test'));
 
         $context1 = new Context();
         $context1->set('key01', 1);
 
-        $this->assertTrue($bag->satisfies($condition, $context1));
+        $this->assertTrue($bag->satisfies($condition, $context1, '')->isValid);
 
         $context2 = new Context();
         $context2->set('key01', 2);
 
-        $this->assertTrue($bag->satisfies($condition, $context2));
+        $this->assertTrue($bag->satisfies($condition, $context2, '')->isValid);
     }
 
     public function testMatchesRegex()
@@ -189,12 +192,12 @@ class OperatorTest extends TestCase
             ]
         ];
 
-        $bag = new OperatorBag();
+        $bag = new OperatorBag(new Logger('test'));
 
         $context1 = new Context();
         $context1->set('key01', 'brandon.taylor@acme.com');
 
-        $this->assertTrue($bag->satisfies($condition, $context1));
+        $this->assertTrue($bag->satisfies($condition, $context1, '')->isValid);
     }
 
     public function testOperatorNotExistsShouldReturnFalse()
@@ -207,11 +210,89 @@ class OperatorTest extends TestCase
             ]
         ];
 
-        $bag = new OperatorBag();
+        $bag = new OperatorBag(new Logger('test'));
 
         $context1 = new Context();
         $context1->set('key01', 'brandon.taylor@acme.com');
 
-        $this->assertFalse($bag->satisfies($condition, $context1));
+        $this->assertFalse($bag->satisfies($condition, $context1, '')->isValid);
     }
+
+    public function testPercentualRolloutNoUUID() {
+
+        $this->expectException(EvaluationException::class);
+        $condition = [
+            "key" => "percentual-rollout",
+            "name" => "rollout-condition",
+            "allocations" => [
+                "name" => "bucketA",
+                "ratio" => 0.5,
+            ]
+        ];
+
+        $bag = new OperatorBag(new Logger('test'));
+
+        $context1 = new Context();
+
+        $bag->satisfies($condition, $context1, 'feature');        
+    }
+
+    public function testPercentualRollout() {
+
+        $condition = [
+            "key" => "percentual-rollout",
+            "name" => "rollout-condition",
+            "allocations" => [
+                [
+                "name" => "bucketA",
+                "ratio" => 0.5,
+                "value" => null
+                ]
+            ]
+        ];
+
+        $logger = new Logger('test', [new ErrorLogHandler()]);
+        $bag = new OperatorBag($logger);
+
+        $context1 = new Context(['uuid' => 1]);
+        $this->assertFalse($bag->satisfies($condition, $context1, 'feature')->isValid);  
+
+        $context2 = new Context(['uuid' => 2]);
+        $this->assertTrue($bag->satisfies($condition, $context2, 'feature')->isValid);  
+    }
+
+    
+
+    public function testAbSplitWithAllocationValue(){
+        $condition = [
+            "key" => "ab-split",
+            "name" => "rollout-condition",
+            "allocations" => [
+                [
+                "name" => "bucketA",
+                "ratio" => 0.5,
+                "value" => 1
+                ],
+                [
+                    "name" => "bucketB",
+                    "ratio" => 0.5,
+                    "value" => 2
+                ]
+            ]
+        ];
+
+        $logger = new Logger('test', [new ErrorLogHandler()]);
+        $bag = new OperatorBag($logger);
+
+        $context1 = new Context(['uuid' => 1]);
+        $result = $bag->satisfies($condition, $context1, 'feature');  
+        $this->assertTrue($result->isValid);
+        $this->assertEquals(2, $result->rolloutValue);
+
+        $context2 = new Context(['uuid' => 2]);
+        $result2 = $bag->satisfies($condition, $context2, 'feature'); 
+        $this->assertTrue($result2->isValid);  
+        $this->assertEquals(1, $result2->rolloutValue);
+
+    } 
 }
