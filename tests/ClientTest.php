@@ -200,7 +200,7 @@ class ClientTest extends TestCase
     /*
     function testReal() {
 
-        $client = new SwitchoverClient('fb6c850f-7934-4645-a295-ab507857b01f');
+        $client = new SwitchoverClient('');
 
         $ctx = new Context();
         $ctx->set('email', 'brandon.taylor@acme.org');
