@@ -51,7 +51,42 @@ if ($isFeatureVisible) {
 }
 ```
 
-### Options
+## What is the `Context`?
+
+The context holds any data (key-value pair) which should be evaluated against the toggle conditions. 
+This can be anything, from user-related data (email, userId) to pure technical infos (stage, system infos, versions, etc). If you have rollout options you have to provide a uuid (more details below).
+
+> :eyes: **PLEASE NOTE** 
+> We do **not** send any context data (and such any user data) to our servers. All evaluations happens on the client. 
+
+In an user webfrontend you would typically want to use userdata like email or userId, etc. to evaluate you feature flag. Of course the toggle conditions should also contain the relevant context key. 
+
+Example: 
+```php
+$ctx = new Context([
+    "email" => "brandon.taylor@bigcorp.org"
+]);
+
+$isFeatureEnabled = $client->toggleValue('my-big-feature', false, $ctx);
+
+```
+
+If you have specified a rollout option for you feature flag it is important to provide a UUID. You can freely choose, but should be unique. 
+
+Example:
+```php
+/* Feature flag has rollout options so we must provide a uuid.
+   Here we use the email */
+$ctx = new Context([
+    "uuid" => "brandon.taylor@bigcorp.org"
+]);
+```
+> :warning: **IMPORTANT:** 
+> Rollout options expects a uuid. Toggle evaluation will fail and return the default value if you don't provide the uuid.
+
+
+
+## Client Options
 
 It's possible to pass numerous options to the client:
 
