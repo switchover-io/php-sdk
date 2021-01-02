@@ -140,6 +140,15 @@ class Evaluator {
         return $defaultValue;
     }
 
+    /**
+     * We will remove this function in a future version
+     * @deprecated version
+     *
+     * @param array $toggle
+     * @param Context $context
+     * @param [type] $defaultValue
+     * @return mixid
+     */
     private function evaluateMajority(array $toggle, Context $context, $defaultValue) {
         $this->logger->debug('Majority of conditions has to be satisfied');
 
